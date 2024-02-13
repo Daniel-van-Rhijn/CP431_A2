@@ -174,42 +174,21 @@ def parallel_merge(length_A, length_B) :
         
         #Determine amount of time to setup data
         setup_time = MPI.Wtime()
-            
-        #Diagnostic tool to confirm arrays work. Delete later.
-        """
-        print("Array A: " + str(array_A))
-        print("Array B: " + str(array_B))
-        print()
-        print("\nChunks of A:")
-        print(chunks_A)
-        print(len(chunks_A[0]))
-        print(len(chunks_A[1]))
-        print("\nChunks of B:")
-        print(chunks_B)
-        print(len(chunks_B[0]))
-        print(len(chunks_B[1]))
-        """
         
     #Share chunks to other processes
     chunks_A = comm.scatter(chunks_A, root=0)
     chunks_B = comm.scatter(chunks_B, root=0)
-    """
-    print(f"Chunks A: {chunks_A}, Process: {rank}")
-    print(f"Chunks B: {chunks_B}, Process: {rank}")
-    print()
-    """
     
-    #Not sure if I need this. Commenting it and seeing what happens
-    #comm.barrier()
+    #Wait for all processes to start merging at the same time
+    comm.barrier()
     
     #Generate the merged array
     merged_array = sequential_merge(chunks_A, chunks_B)
     
-    """
-    print(f"Merged Array: {merged_array}, Process: {rank}")
-    """
-    
     result = comm.gather((merged_array, rank), root=0) #Gather the completed list of values
+    
+    #Wait for all processes to finish sorting their array
+    comm.barrier()
     
     if rank == 0:
         final_sorted_array = []
@@ -220,6 +199,7 @@ def parallel_merge(length_A, length_B) :
                 if tuple[1] == i:
                     for num in tuple[0]:
                         final_sorted_array.append(num)
+        
         end_time = MPI.Wtime()
         print("Time Total: " + str(end_time - start_time))
         print("Time without setup: " + str(end_time - setup_time))
