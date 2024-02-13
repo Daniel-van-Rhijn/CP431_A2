@@ -1,0 +1,5 @@
+Author: Daniel van Rhijn
+Date: 13/02/2024
+
+The purpose of this project is to merge two sorted lists of integers using parallel processing.
+The MPI4Py library is used to accomplish this.

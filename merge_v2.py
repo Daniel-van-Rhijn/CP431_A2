@@ -3,7 +3,21 @@ import time
 import random
 import math
 
+# To Execute Use:
 # mpiexec -n 2 python merge_v2.py
+
+def binary_search(array_B, num) -> int:
+    low = 0
+    high = len(array_B)
+    
+    while low < high:
+        mid = (low + high) // 2
+        if array_B[mid] < num:
+            low = mid + 1
+        else:
+            high = mid
+    
+    return low
 
 def generate_lists(len_A, len_B):
 	# Define lists to hold values
@@ -18,8 +32,6 @@ def generate_lists(len_A, len_B):
 		listB.append(int(random.uniform(listB[i], listB[i]+20)))
 	
 	return listA, listB
-
-
 
 def sequential_merge(array_A, array_B):
 	"""
@@ -58,8 +70,6 @@ def sequential_merge(array_A, array_B):
 		merged_list = merged_list + array_A[i:]
 	
 	return merged_list
-
-
 
 def diagnostic_function(listA, listB, merged_list, quiet):
 	"""
@@ -108,8 +118,6 @@ def diagnostic_function(listA, listB, merged_list, quiet):
 	
 	return
 			
-
-
 def parallel_merge(length_A, length_B) :
     """
 	Purpose:
@@ -157,8 +165,7 @@ def parallel_merge(length_A, length_B) :
         	
         #Determine the chunk of B to send to process with rank i
         for chunk in chunks_A:
-            while (index < len(array_B) and chunk[-1] > array_B[index]):
-                index = index + 1
+            index = binary_search(array_B, chunk[-1])
             chunks_B.append(array_B[b_start:index])
             b_start = index
         
